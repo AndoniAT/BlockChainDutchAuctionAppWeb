@@ -8,7 +8,7 @@ Le TP est à réaliser individuellement.
 
 ## Présentation
 
-Ce TP est le prolongement du premier et consiste à créer une application décentralisée (dApp). Celle-ci doit pouvoir proposer les fonctionnalités suivantes.
+Ce TP est le prolongement du premier et consiste à créer une application décentralisée (dApp) permettant de donner vie à votre Smart Contract (SC). Celle-ci doit pouvoir proposer les fonctionnalités suivantes.
 
 ### Authentification et profil
 
