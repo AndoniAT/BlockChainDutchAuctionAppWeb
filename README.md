@@ -12,7 +12,7 @@ Ce TP est le prolongement du premier et consiste à créer une application déce
 
 ### Authentification et profil
 
-Il doit être possible de se connecter à l'aide de son portefeuille MetaMask. Vous pouvez utiliser la SDK de [MetaMask](https://docs.metamask.io/wallet/how-to/connect/set-up-sdk/) ;
+Il doit être possible de se connecter à l'aide de son portefeuille MetaMask. Vous pouvez utiliser la SDK de [MetaMask](https://docs.metamask.io/wallet/how-to/connect/set-up-sdk/).
 
 Les données du portefeuille telles que la clé publique et le solde en ETH doivent être visibles depuis l'application.
 
@@ -30,6 +30,6 @@ L'application doit proposer des fonctionnalités sur la gestion des enchères te
 
 ## Restitution
 
-**Un rapport concernant l'utilisation de l'application sera a restituer 3 semaines après le dernier TP.**
+**Un rapport concernant l'utilisation de l'application sera à restituer 3 semaines après le dernier TP.**
 
 Pour ce projet, il est imposé d'utiliser le framework [NextJS](https://nextjs.org/) qui utilise la bibliothèque [React](https://react.dev/).
