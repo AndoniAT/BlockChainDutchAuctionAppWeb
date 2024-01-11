@@ -24,9 +24,11 @@ L'application doit proposer des fonctionnalités sur la gestion des enchères te
 - Participer à une ou plusieurs enchères ;
 - Pouvoir enchérir ;
 - Cloturer une enchère (versement des fonds au propriétaire de l'enchère) ;
-- Un tableau de bord permettant de visualiser les enchères gagnées, en cours ou encore perdues.
+- Un tableau de bord permettant de visualiser les enchères gagnées, en cours ou perdues.
 
 *N'oubliez pas de créer une barre de navigation pour accéder aux différentes fonctionnalités.*
+
+Pour interagir avec la blockchain depuis votre application, il existe plusieurs bibliothèques telles que [ethers](https://docs.ethers.org/v5/) ou encore [web3js](https://web3js.readthedocs.io/en/v1.10.0/).
 
 ## Restitution
 
