@@ -18,7 +18,7 @@ Les données du portefeuille telles que la clé publique et le solde en ETH doiv
 
 ### Enchères
 
-L'application doit proposer des fonctionnalités sur la gestion des enchères telles que :
+La gestion des enchères est composée des éléments suivants :
 - Une liste des enchères disponibles ;
 - Créer une enchère avec les paramètres souhaités par le propriétaire ;
 - Participer à une ou plusieurs enchères ;
