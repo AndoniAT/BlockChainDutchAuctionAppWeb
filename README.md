@@ -35,3 +35,12 @@ Pour interagir avec la blockchain depuis votre application, il existe plusieurs 
 **Un rapport concernant l'utilisation de l'application sera à restituer 3 semaines après le dernier TP.**
 
 Pour ce projet, il est imposé d'utiliser le framework [NextJS](https://nextjs.org/) qui utilise la bibliothèque [React](https://react.dev/).
+
+## Installation
+
+Pour créer une application NextJS, utilisez la commande suivante : 
+```shell
+npx create-next-app@latest
+```
+
+A vous de jouer !
