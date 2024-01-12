@@ -1,8 +1,8 @@
 # Application décentralisée d'enchères hollandaises
 
-|   Nom   | Prénom |
-|---------|--------|
-|   Doe   |  Jane  |
+|       Nom       | Prénom  |
+|-----------------|---------|
+|   ALONSO TORT   |  Andoni |
 
 Le TP est à réaliser individuellement.
 
