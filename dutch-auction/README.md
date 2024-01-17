@@ -34,3 +34,20 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+======= ENCHERE HOLLANDAISE APP =======
+
+## Ganache
+Pour qu'on puisse utiliser notre contrat, ne pas oublier de lancer ganache avant.
+
+## ABI 
+Pour generer le Abi de notre contrat on utilise le site
+https://remix.ethereum.org
+
+compiler le code et le abi sera généré automatiquement dans le dossier build info, puis aller à "output" dans l'objet
+et vous trouverz l'abi de votre contrat.
+
+
+
+
