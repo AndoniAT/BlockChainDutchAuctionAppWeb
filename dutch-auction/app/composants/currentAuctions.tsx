@@ -1,265 +1,77 @@
 "use client"
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import { useEffect, useState, Suspense } from "react";  // Import useEffect for side effects in a functional component
 import { DutchsSkeleton } from '@/app/composants/skeletons';
 import DutchWrapper from '@/app/composants/dutchs';
+import daiAbi from '@/app/composants/abi';
 
 interface AuctionProps {}
 interface Article {
+    id:BigNumber,
     name:string,
-    currentPrice:number,
+    currentPrice:number|BigNumber,
     winningBidder:any,
     closed:boolean
 }
 
-
+const address = "0xa33bD5E06A1d0F0E52597e0400bD44EeC77dBdc5";
 // The ERC-20 Contract ABI, which is a common contract interface
 // for tokens (this is the Json ABI format)
-const daiAbi = [
-    {
-        "inputs": [],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "uint256",
-                "name": "articleIndex",
-                "type": "uint256"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "bidder",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "BidPlaced",
-        "type": "event"
-    },
-    {
-        "inputs": [],
-        "name": "AUCTION_DURATION",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "PRICE_DECREMENT",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "RESERVE_PRICE",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "STARTING_PRICE",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "name": "articles",
-        "outputs": [
-            {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-            },
-            {
-                "internalType": "uint256",
-                "name": "currentPrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "winningBidder",
-                "type": "address"
-            },
-            {
-                "internalType": "bool",
-                "name": "closed",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "auctionStartTime",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "auctioneer",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "currentArticleIndex",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "getArticleNames",
-        "outputs": [
-            {
-                "internalType": "string[]",
-                "name": "",
-                "type": "string[]"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "getArticles",
-        "outputs": [
-            {
-                "components": [
-                    {
-                        "internalType": "string",
-                        "name": "name",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "currentPrice",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "winningBidder",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "bool",
-                        "name": "closed",
-                        "type": "bool"
-                    }
-                ],
-                "internalType": "struct DutchAuction.Article[]",
-                "name": "",
-                "type": "tuple[]"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "getCurrentPrice",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "moveToNextArticle",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "articleIndex",
-                "type": "uint256"
-            }
-        ],
-        "name": "placeBid",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    }
-]
+const getCurrentPrice = async( contract: ethers.Contract | null, setTimeElapsed:Function) => {
+    if( contract ) {
+        const startTime = await contract.getStartTime();
+        const now = Math.floor(new Date().getTime() / 1000);
 
-const address = "0x0210B2acA1FCE1d58B1eF33F42B097B7AC2fa0B0";
+        const elapsedTime = now - startTime;
+        
+
+        setTimeElapsed(humanReadableSeconds(elapsedTime));
+        
+        const interval = await contract.INTERVAL();
+        const decrements = Math.floor(elapsedTime / interval);
+
+        const startingPrice = await contract.STARTING_PRICE();
+        const priceDec = await contract.PRICE_DECREMENT();
+        const currentPrice = startingPrice - (priceDec * decrements);
+        const reservePrice = await contract.RESERVE_PRICE();
+        let res = Math.max(currentPrice, reservePrice) / (10 ** 18);
+        return res;
+    } else {
+        return 0;
+    }
+}
+
+function humanReadableSeconds ( seconds:number ) {
+    let sec = seconds % 60;
+
+    let totMin = parseInt( String(seconds / 60) );
+    let hour = parseInt( String(totMin / 60) );
+    let min = totMin % 60;
+    let parseTime = ( val:any ) => `${ (val <= 9 ) ? '0' : ''}${val}`
+    
+    return `${parseTime(hour)}:${parseTime(min)}:${parseTime( sec )}`;
+  }
+
+const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contract | null,  setTimeElapsed:Function ) => {
+    if( daiContract ) {
+        let price = await getCurrentPrice( daiContract, setTimeElapsed );
+        const articleTemp = await daiContract.callStatic.getCurrentArticle();
+        setCuerrentArticle( {
+            ... articleTemp,
+            currentPrice: price
+        } );
+    }
+}
+
+
 export function CurrentAuctions(props: AuctionProps) {
+    const [ timeElapsed, setTimeElapsed] = useState<string|null>(null);
     const [ signer, setSigner ] = useState<ethers.providers.JsonRpcSigner | null>(null);
     const [ provider, setProvider ] = useState<ethers.providers.Web3Provider | null>(null);
     const [ balance, setBalance ] = useState<number | null>(null);
     const [ articles, setArticles ] = useState<Article[]>([]);
+    const [ currentArticle, setCuerrentArticle ] = useState<Article | null>(null);
+    const [ daiContract, setContract ] = useState<ethers.Contract | null>(null);
 
     async function connectToEthereum() {
         // Check if running in a browser environment
@@ -289,57 +101,53 @@ export function CurrentAuctions(props: AuctionProps) {
             if( !signer || !provider ) {
                 connectToEthereum();
             } else {
-                /*console.log('signer!!', signer);
-                console.log('prov', provider);
-                
-                provider.getBalance(address).then( b => {
-                    console.log('balance', b);
-                }).catch( e => {
-                    console.log('error', e);
-                })*/
 
-                // You can also use an ENS name for the contract address
                 const daiAddress = address;
 
-                // The Contract object
-                const daiContract = new ethers.Contract(daiAddress, daiAbi, signer);
-                
-                // Fetch current price asynchronously
-                const currentPrice = await daiContract.getCurrentPrice();
-                //console.log('Current Price:', ethers.utils.formatEther(currentPrice));
-                //console.log('check articles', articles);
+                if ( daiContract ) {
+                    if( articles.length == 0 ) {
+                        const articlesTemp = await daiContract.callStatic.getArticles();
+                        setArticles(articlesTemp);
+                    }
 
-                if( articles.length == 0) {
-                    const articlesTemp = await daiContract.callStatic.getArticles();
-                    setArticles(articlesTemp);
+                    const articleTemp = await daiContract.callStatic.getCurrentArticle();
+                    //console.log(articleTemp.currentPrice);
+
+                    if( currentArticle && articles.length > 0 ) {
+                        const articlesTemp = articles.filter( ( a:Article ) => a.id.toNumber() != currentArticle.id.toNumber() )
+                        setArticles( articlesTemp );
+                    }
+                } else {
+                    const daiContractTemp = new ethers.Contract(daiAddress, daiAbi, signer);console.log('set contrat');
+                    setContract( daiContractTemp );
                 }
-                /*
-
-                // Example: Place bid asynchronously
-                const articleIndex = 0;
-                const bidAmount = ethers.utils.parseEther("1.5");
-
-                // Utilisez le signer pour envoyer la transaction
-                const signedTransaction = await signer.sendTransaction({
-                    to: daiContract.address,
-                    value: bidAmount,
-                    data: daiContract.interface.encodeFunctionData('placeBid', [articleIndex]),
-                });
-
-                const receipt = await signedTransaction.wait();
-                console.log('Transaction confirmed:', receipt);*/
             }
 
         } catch (error) {
             console.error('Error:', error);
         }
     }
+
     useEffect(() => {
-        fetchData();
-    }, [ signer, provider ]);  // Empty dependency array ensures that useEffect runs only once on mount
+        if( address ) {
+            fetchData();
+        }
+    }, [signer, provider, articles, currentArticle, daiContract]);
 
-    fetchData();
+    useEffect(() => {
+        if( address ) {
+            const intervalId = setInterval(() => {
+                fetchPrice( setCuerrentArticle, daiContract, setTimeElapsed );
+            }, 1000);
+            return () => clearInterval(intervalId);
+        }
+    }, [ currentArticle ])
+    
+    if( !currentArticle && address ) {
+        fetchPrice( setCuerrentArticle, daiContract, setTimeElapsed );
+    }
 
+    let time = getCurrentTime();
     return (
         <>
             <div>
@@ -347,13 +155,27 @@ export function CurrentAuctions(props: AuctionProps) {
                     <h1> ENCHERES EN COURS </h1>
                 </div>
                 <div style={{ background: '#CBCBCB', width: '80%', margin: '0 auto', borderRadius: '10px', minHeight: '80vh', padding: '20px' }}>
+                    <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1" style={{marginBottom: '10px'}}>
+                        <Suspense fallback={<DutchsSkeleton />}>
+                            <DutchWrapper data={( currentArticle ) ? [currentArticle] : []} date={timeElapsed}/>    
+                        </Suspense>
+                        </div>
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     <Suspense fallback={<DutchsSkeleton />}>
-                       <DutchWrapper data={articles}/>    
+                       <DutchWrapper data={articles} date={null}/>    
                     </Suspense>
                     </div>
                 </div>
             </div>
-        </>
+        </>                
     );
+}
+
+function getCurrentTime() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    return `${hours}:${minutes}:${seconds}`;
 }

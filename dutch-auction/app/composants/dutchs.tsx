@@ -1,51 +1,41 @@
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 
 interface Article {
+    id:BigNumber,
     name:string,
-    currentPrice:number,
+    currentPrice:number|BigNumber,
     winningBidder:any,
     closed:boolean
 }
 
 interface DutchWrapperProps {
-    data: Article[];
-  }
+    data: Article[],
+    date: string|null
+};
 
-const DutchWrapper: React.FC<DutchWrapperProps> = ({ data }) => {
-    console.log('data', data);
+const DutchWrapper: React.FC<DutchWrapperProps> = ({ data, date }) => {
+    let d = data.map( (d, idx) => ( <Card key={idx} title={d.name} value={(d.currentPrice)} date={date}/> ) );
     return (
-        <>
-          {/* NOTE: comment in this code when you get to this point in the course */}
-          {
-            data.map( d => <Card title={d.name} value={ethers.utils.formatEther(d.currentPrice)} type="collected" /> )
-          }
-        </>
+      <>
+        { d }
+      </>
       );
 }
 
 export default DutchWrapper;
 
 
-export function Card( { 
-        title, 
-        value,
-        type
-    } : 
-    { 
-        title:string,
-        value:number|string,
-        type:string
-    }) 
-    {
+export function Card( { title, value, date } :  {  title:string,  value:number|BigNumber, date:string|null } ) {
+  let val = (value instanceof BigNumber ) ? ethers.utils.formatEther( value ) : value;
   return (
     <div className="rounded-xl bg-gray-50 p-2 shadow-sm">
       <div className="flex p-4">
-        <h3 className="ml-2 text-sm font-medium">{title}</h3>
+        <h3 className="ml-2 text-sm font-medium">{title} - {date}</h3>
       </div>
       <p
         className={`truncate rounded-xl bg-white px-4 py-8 text-center text-2xl`}
       >
-        {value} eth
+        { val } eth
       </p>
     </div>
   );
