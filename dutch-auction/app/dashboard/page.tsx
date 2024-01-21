@@ -1,14 +1,29 @@
-import { ethers } from "ethers";
-import { NavBar } from '../composants/navbar';
-import { CurrentAuctions } from '../composants/currentAuctions';
+'use client';
+import { NavBar } from '@/app/composants/navbar';
+import { FormEvent, useState, createContext, useContext, useEffect } from 'react';
+import { ethers, BigNumber } from "ethers";
+import daiAbi from '@/app/composants/abi';
+import { MyContextProvider, useMyContext } from '@/app/dashboard/context';
+import Now from '@/app/dashboard/now';
+import ChooseContract from './chooseContract';
 
-export default function Page() {
+const Menu = () => {
+  const [ active, setActive ] = useState<string>('choose');
+
+  const handlerActive = ( act:string ) => {
+    setActive(act);
+  }
+
+  useEffect(() => {
+  }, [active])
+
   return (
-    <>
-      <NavBar />
-      <div style={{ background: '#EAEAEA', height: '100vh', }}>
-          <CurrentAuctions/>
-      </div>
-    </>
-  );
+    <MyContextProvider>
+      <NavBar setActiveSection={handlerActive} />
+      { (active == "choose") ? <ChooseContract /> : <></>}
+      { (active == "now") ? <Now/> : <></>}
+    </MyContextProvider>
+  )
 }
+
+export default Menu;

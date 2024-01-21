@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";  // Import useEffect for 
 import { DutchsSkeleton } from '@/app/composants/skeletons';
 import DutchWrapper from '@/app/composants/dutchs';
 import daiAbi from '@/app/composants/abi';
+import { MyContextProvider, useMyContext } from '@/app/dashboard/context';
 
 interface AuctionProps {}
 interface Article {
@@ -14,7 +15,7 @@ interface Article {
     closed:boolean
 }
 
-const address = "0xa33bD5E06A1d0F0E52597e0400bD44EeC77dBdc5";
+
 // The ERC-20 Contract ABI, which is a common contract interface
 // for tokens (this is the Json ABI format)
 const getCurrentPrice = async( contract: ethers.Contract | null, setTimeElapsed:Function) => {
@@ -65,86 +66,47 @@ const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contr
 
 
 export function CurrentAuctions(props: AuctionProps) {
+    const { 
+        contract, setContract
+      } = useMyContext();
+
     const [ timeElapsed, setTimeElapsed] = useState<string|null>(null);
-    const [ signer, setSigner ] = useState<ethers.providers.JsonRpcSigner | null>(null);
-    const [ provider, setProvider ] = useState<ethers.providers.Web3Provider | null>(null);
     const [ balance, setBalance ] = useState<number | null>(null);
     const [ articles, setArticles ] = useState<Article[]>([]);
     const [ currentArticle, setCuerrentArticle ] = useState<Article | null>(null);
-    const [ daiContract, setContract ] = useState<ethers.Contract | null>(null);
-
-    async function connectToEthereum() {
-        // Check if running in a browser environment
-        if (typeof window !== "undefined") {
-            // Connecting to Ethereum: MetaMask
-            interface ExtendedWindow extends Window {
-                ethereum?: any;
-            }
-
-            const extendedWindow = window as ExtendedWindow;
-
-            if (extendedWindow.ethereum) {
-                const $provider = new ethers.providers.Web3Provider(extendedWindow.ethereum);
-                await $provider.send("eth_requestAccounts", []);
-                setProvider( $provider );
-
-                const $signer = $provider.getSigner();
-                setSigner($signer);
-            } else {
-                console.error("MetaMask not detected.");
-            }
-        }
-    }
 
     const fetchData = async () => {
         try {
-            if( !signer || !provider ) {
-                connectToEthereum();
+            if( contract ) {
+                if( articles.length == 0 ) {
+                    const articlesTemp = await contract.callStatic.getArticles();
+                    setArticles(articlesTemp);
+                }
+
+
+                if( currentArticle && articles.length > 0 ) {
+                    const articlesTemp = articles.filter( ( a:Article ) => a.id.toNumber() != currentArticle.id.toNumber() )
+                    setArticles( articlesTemp );
+                }
+                
             } else {
 
-                const daiAddress = address;
-
-                if ( daiContract ) {
-                    if( articles.length == 0 ) {
-                        const articlesTemp = await daiContract.callStatic.getArticles();
-                        setArticles(articlesTemp);
-                    }
-
-                    const articleTemp = await daiContract.callStatic.getCurrentArticle();
-                    //console.log(articleTemp.currentPrice);
-
-                    if( currentArticle && articles.length > 0 ) {
-                        const articlesTemp = articles.filter( ( a:Article ) => a.id.toNumber() != currentArticle.id.toNumber() )
-                        setArticles( articlesTemp );
-                    }
-                } else {
-                    const daiContractTemp = new ethers.Contract(daiAddress, daiAbi, signer);console.log('set contrat');
-                    setContract( daiContractTemp );
-                }
             }
 
         } catch (error) {
             console.error('Error:', error);
         }
     }
-
     useEffect(() => {
-        if( address ) {
+        const intervalId = setInterval(() => {
+            fetchPrice( setCuerrentArticle, contract, setTimeElapsed );
             fetchData();
-        }
-    }, [signer, provider, articles, currentArticle, daiContract]);
-
-    useEffect(() => {
-        if( address ) {
-            const intervalId = setInterval(() => {
-                fetchPrice( setCuerrentArticle, daiContract, setTimeElapsed );
-            }, 1000);
-            return () => clearInterval(intervalId);
-        }
+        }, 1000);
+        return () => clearInterval(intervalId);
     }, [ currentArticle ])
     
-    if( !currentArticle && address ) {
-        fetchPrice( setCuerrentArticle, daiContract, setTimeElapsed );
+    if( !currentArticle ) {
+        fetchPrice( setCuerrentArticle, contract, setTimeElapsed );
     }
 
     let time = getCurrentTime();
