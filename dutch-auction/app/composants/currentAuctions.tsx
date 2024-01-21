@@ -15,9 +15,6 @@ interface Article {
     closed:boolean
 }
 
-
-// The ERC-20 Contract ABI, which is a common contract interface
-// for tokens (this is the Json ABI format)
 const getCurrentPrice = async( contract: ethers.Contract | null, setTimeElapsed:Function) => {
     if( contract ) {
         const startTime = await contract.getStartTime();
@@ -51,9 +48,9 @@ function humanReadableSeconds ( seconds:number ) {
     let parseTime = ( val:any ) => `${ (val <= 9 ) ? '0' : ''}${val}`
     
     return `${parseTime(hour)}:${parseTime(min)}:${parseTime( sec )}`;
-  }
+}
 
-const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contract | null,  setTimeElapsed:Function ) => {
+const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contract | null,  setTimeElapsed:Function, setArticles:Function, articles:Article[] ) => {
     if( daiContract ) {
         let price = await getCurrentPrice( daiContract, setTimeElapsed );
         const articleTemp = await daiContract.callStatic.getCurrentArticle();
@@ -61,6 +58,11 @@ const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contr
             ... articleTemp,
             currentPrice: price
         } );
+        let find = articles.find( a => a.id.eq(articleTemp.id) );
+        if( find ) {
+            const articlesTemp = articles.filter( ( a:Article ) => a.id.toNumber() != articleTemp.id.toNumber() )
+            setArticles( articlesTemp );
+        }
     }
 }
 
@@ -75,41 +77,25 @@ export function CurrentAuctions(props: AuctionProps) {
     const [ articles, setArticles ] = useState<Article[]>([]);
     const [ currentArticle, setCuerrentArticle ] = useState<Article | null>(null);
 
-    const fetchData = async () => {
-        try {
-            if( contract ) {
-                if( articles.length == 0 ) {
-                    const articlesTemp = await contract.callStatic.getArticles();
-                    setArticles(articlesTemp);
-                }
-
-
-                if( currentArticle && articles.length > 0 ) {
-                    const articlesTemp = articles.filter( ( a:Article ) => a.id.toNumber() != currentArticle.id.toNumber() )
-                    setArticles( articlesTemp );
-                }
-                
-            } else {
-
-            }
-
-        } catch (error) {
-            console.error('Error:', error);
-        }
+    const fetchArticles = async () => {
+        const articlesTemp = contract ? await contract.callStatic.getArticles() : [];
+        return articlesTemp;
     }
+
     useEffect(() => {
         const intervalId = setInterval(() => {
-            fetchPrice( setCuerrentArticle, contract, setTimeElapsed );
-            fetchData();
+            fetchArticles().then( articlesTemp => {
+                fetchPrice( setCuerrentArticle, contract, setTimeElapsed, setArticles, articlesTemp );
+            } );
         }, 1000);
+
         return () => clearInterval(intervalId);
     }, [ currentArticle ])
     
-    if( !currentArticle ) {
-        fetchPrice( setCuerrentArticle, contract, setTimeElapsed );
+    if( articles && !currentArticle ) {
+        fetchPrice( setCuerrentArticle, contract, setTimeElapsed, setArticles, articles );
     }
 
-    let time = getCurrentTime();
     return (
         <>
             <div>
@@ -119,12 +105,12 @@ export function CurrentAuctions(props: AuctionProps) {
                 <div style={{ background: '#CBCBCB', width: '80%', margin: '0 auto', borderRadius: '10px', minHeight: '80vh', padding: '20px' }}>
                     <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1" style={{marginBottom: '10px'}}>
                         <Suspense fallback={<DutchsSkeleton />}>
-                            <DutchWrapper data={( currentArticle ) ? [currentArticle] : []} date={timeElapsed}/>    
+                            <DutchWrapper data={( currentArticle ) ? [currentArticle] : []} date={timeElapsed} current={true}/>
                         </Suspense>
                         </div>
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     <Suspense fallback={<DutchsSkeleton />}>
-                       <DutchWrapper data={articles} date={null}/>    
+                       <DutchWrapper data={articles} date={null} current={false}/>
                     </Suspense>
                     </div>
                 </div>

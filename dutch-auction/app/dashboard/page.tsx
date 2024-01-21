@@ -19,7 +19,7 @@ const Menu = () => {
 
   return (
     <MyContextProvider>
-      <NavBar setActiveSection={handlerActive} />
+      <NavBar setActiveSection={handlerActive} active={active} />
       { (active == "choose") ? <ChooseContract /> : <></>}
       { (active == "now") ? <Now/> : <></>}
     </MyContextProvider>

@@ -2,19 +2,30 @@ import Link from "next/link";
 import Image from 'next/image'
 
 interface NavBarProps {
-  setActiveSection: Function;
+  setActiveSection: Function,
+  active:string
 }
 
-
-export function NavBar({setActiveSection}: NavBarProps) {
+export function NavBar({setActiveSection, active}: NavBarProps) {
+  const selectedColor = '#69accf';
 
     const styles = {
         navBarElement: {
             margin: '0 50px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            padding: '10px',
+            borderRadius: '10px'
+        },
+        win : {
+          background: (active == 'win') ? selectedColor : ''
+        },
+        now : {
+          background: (active == 'now') ? selectedColor : ''
+        },
+        loose : {
+          background: (active == 'loose') ? selectedColor : ''
         }
     };
-
     return (
       <div className="w-full h-20 sticky top-0" style={{background: '#7EC9EB'}}>
         <div className="container mx-auto px-4 h-full">
@@ -28,13 +39,13 @@ export function NavBar({setActiveSection}: NavBarProps) {
                 alt="Picture of the author"
                 />
               </div>
-              <li style={styles.navBarElement} onClick={() => {setActiveSection("win");}}>
+              <li style={{ ...styles.navBarElement, ...styles.win }} onClick={() => {setActiveSection("win");}}>
                   <p>Encheres gagnés</p>
               </li>
-              <li style={styles.navBarElement} onClick={() => {setActiveSection("loose");}}>
+              <li style={{ ...styles.navBarElement, ...styles.loose }} onClick={() => {setActiveSection("loose");}}>
                   <p>Encheres perdus</p>
               </li>
-              <li style={styles.navBarElement} onClick={() => {setActiveSection("now");}}>
+              <li style={{ ...styles.navBarElement, ...styles.now }} onClick={() => {setActiveSection("now");}}>
                   <p>Encheres en cours</p>
               </li>
             </ul>
