@@ -5,6 +5,7 @@ import { DutchsSkeleton } from '@/app/composants/skeletons';
 import DutchWrapper from '@/app/composants/dutchs';
 import daiAbi from '@/app/composants/abi';
 import { MyContextProvider, useMyContext } from '@/app/dashboard/context';
+import { cp } from "fs";
 
 interface AuctionProps {}
 interface Article {
@@ -66,19 +67,17 @@ const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contr
     }
 }
 
-
 export function CurrentAuctions(props: AuctionProps) {
     const { 
         contract, setContract
       } = useMyContext();
-
     const [ timeElapsed, setTimeElapsed] = useState<string|null>(null);
     const [ balance, setBalance ] = useState<number | null>(null);
     const [ articles, setArticles ] = useState<Article[]>([]);
     const [ currentArticle, setCuerrentArticle ] = useState<Article | null>(null);
 
     const fetchArticles = async () => {
-        const articlesTemp = contract ? await contract.callStatic.getArticles() : [];
+        const articlesTemp = contract ? await contract.callStatic.getOpenArticles() : [];
         return articlesTemp;
     }
 
@@ -107,7 +106,7 @@ export function CurrentAuctions(props: AuctionProps) {
                         <Suspense fallback={<DutchsSkeleton />}>
                             <DutchWrapper data={( currentArticle ) ? [currentArticle] : []} date={timeElapsed} current={true}/>
                         </Suspense>
-                        </div>
+                    </div>
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     <Suspense fallback={<DutchsSkeleton />}>
                        <DutchWrapper data={articles} date={null} current={false}/>
@@ -117,13 +116,4 @@ export function CurrentAuctions(props: AuctionProps) {
             </div>
         </>                
     );
-}
-
-function getCurrentTime() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-
-    return `${hours}:${minutes}:${seconds}`;
 }
