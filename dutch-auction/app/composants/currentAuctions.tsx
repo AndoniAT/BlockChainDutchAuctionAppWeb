@@ -13,31 +13,8 @@ interface Article {
     name:string,
     currentPrice:number|BigNumber,
     winningBidder:any,
-    closed:boolean
-}
-
-const getCurrentPrice = async( contract: ethers.Contract | null, setTimeElapsed:Function) => {
-    if( contract ) {
-        const startTime = await contract.getStartTime();
-        const now = Math.floor(new Date().getTime() / 1000);
-
-        const elapsedTime = now - startTime;
-        
-
-        setTimeElapsed(humanReadableSeconds(elapsedTime));
-        
-        const interval = await contract.INTERVAL();
-        const decrements = Math.floor(elapsedTime / interval);
-
-        const startingPrice = await contract.STARTING_PRICE();
-        const priceDec = await contract.PRICE_DECREMENT();
-        const currentPrice = startingPrice - (priceDec * decrements);
-        const reservePrice = await contract.RESERVE_PRICE();
-        let res = Math.max(currentPrice, reservePrice) / (10 ** 18);
-        return res;
-    } else {
-        return 0;
-    }
+    closed:boolean,
+    boughtFor:number|BigNumber
 }
 
 function humanReadableSeconds ( seconds:number ) {
@@ -51,30 +28,56 @@ function humanReadableSeconds ( seconds:number ) {
     return `${parseTime(hour)}:${parseTime(min)}:${parseTime( sec )}`;
 }
 
-const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contract | null,  setTimeElapsed:Function, setArticles:Function, articles:Article[] ) => {
-    if( daiContract ) {
-        let price = await getCurrentPrice( daiContract, setTimeElapsed );
-        const articleTemp = await daiContract.callStatic.getCurrentArticle();
-        setCuerrentArticle( {
-            ... articleTemp,
-            currentPrice: price
-        } );
-        let find = articles.find( a => a.id.eq(articleTemp.id) );
-        if( find ) {
-            const articlesTemp = articles.filter( ( a:Article ) => a.id.toNumber() != articleTemp.id.toNumber() )
-            setArticles( articlesTemp );
-        }
-    }
-}
 
 export function CurrentAuctions(props: AuctionProps) {
     const { 
-        contract, setContract
-      } = useMyContext();
+        contract, provider, signer
+    } = useMyContext();
     const [ timeElapsed, setTimeElapsed] = useState<string|null>(null);
     const [ balance, setBalance ] = useState<number | null>(null);
     const [ articles, setArticles ] = useState<Article[]>([]);
     const [ currentArticle, setCuerrentArticle ] = useState<Article | null>(null);
+    
+    const getCurrentPrice = async( contract: ethers.Contract | null, setTimeElapsed:Function) => {
+        if( contract ) {
+            const startTime = await contract.getStartTime();
+            const now = Math.floor(new Date().getTime() / 1000);
+    
+            const elapsedTime = now - startTime;
+            
+    
+            setTimeElapsed(humanReadableSeconds(elapsedTime));
+            
+            const interval = await contract.INTERVAL();
+            const decrements = Math.floor(elapsedTime / interval);
+    
+            const startingPrice = await contract.STARTING_PRICE();
+            const priceDec = await contract.PRICE_DECREMENT();
+            const currentPrice = startingPrice - (priceDec * decrements);
+            const reservePrice = await contract.RESERVE_PRICE();
+            let res = Math.max(currentPrice, reservePrice) / (10 ** 18);
+            return res;
+        } else {
+            return 0;
+        }
+    }
+
+    const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contract | null,  setTimeElapsed:Function, setArticles:Function, articles:Article[] ) => {
+        if( daiContract ) {
+            let price = await getCurrentPrice( daiContract, setTimeElapsed );
+            const articleTemp = await daiContract.callStatic.getCurrentArticle();
+            setCuerrentArticle( {
+                ... articleTemp,
+                currentPrice: price
+            } );
+            let find = articles.find( a => a.id.eq(articleTemp.id) );
+            //console.log("check", articleTemp);
+            if( find ) {
+                const articlesTemp = articles.filter( ( a:Article ) => a.id.toNumber() != articleTemp.id.toNumber() )
+                setArticles( articlesTemp );
+            }
+        }
+    }
 
     const fetchArticles = async () => {
         const articlesTemp = contract ? await contract.callStatic.getOpenArticles() : [];
@@ -95,6 +98,31 @@ export function CurrentAuctions(props: AuctionProps) {
         fetchPrice( setCuerrentArticle, contract, setTimeElapsed, setArticles, articles );
     }
 
+    const placeOfferHandle = async ( valueOffer:number, setErrMsg:Function ) => {
+        if( signer && contract && currentArticle ) {
+          const articleIndex = currentArticle.id.toNumber() - 1;
+          const bidAmount = ethers.utils.parseUnits(valueOffer.toString(), 'ether');
+          //console.log('buy', bidAmount);
+          try {
+            const signedTransaction = await signer.sendTransaction({
+                  to: contract.address,
+                  value: bidAmount,
+                  data: contract.interface.encodeFunctionData('placeBid', [articleIndex]),
+            });
+            console.log('signer wait');
+            const receipt = await signedTransaction.wait();
+            console.log('fin', receipt);
+            setArticles([]);
+            setCuerrentArticle(null);
+          } catch ( e:any ) {
+    
+            let msg = ( e.data && e.data.message ) ? e.data.message : e;
+            setErrMsg(msg);
+          }
+        }
+      };
+
+
     return (
         <>
             <div>
@@ -104,12 +132,12 @@ export function CurrentAuctions(props: AuctionProps) {
                 <div style={{ background: '#CBCBCB', width: '80%', margin: '0 auto', borderRadius: '10px', minHeight: '80vh', padding: '20px' }}>
                     <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1" style={{marginBottom: '10px'}}>
                         <Suspense fallback={<DutchsSkeleton />}>
-                            <DutchWrapper data={( currentArticle ) ? [currentArticle] : []} date={timeElapsed} current={true}/>
+                            <DutchWrapper data={( currentArticle ) ? [currentArticle] : []} date={timeElapsed} current={true} buy={placeOfferHandle}/>
                         </Suspense>
                     </div>
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     <Suspense fallback={<DutchsSkeleton />}>
-                       <DutchWrapper data={articles} date={null} current={false}/>
+                       <DutchWrapper data={articles} date={null} current={false} buy={()=>{}}/>
                     </Suspense>
                     </div>
                 </div>

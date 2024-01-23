@@ -7,17 +7,19 @@ interface Article {
     name:string,
     currentPrice:number|BigNumber,
     winningBidder:any,
-    closed:boolean
+    closed:boolean,
+    boughtFor:number|BigNumber
 }
 
 interface DutchWrapperProps {
     data: Article[],
     date: string|null,
-    current: boolean
+    current: boolean,
+    buy:Function
 };
 
-const DutchWrapper: React.FC<DutchWrapperProps> = ({ data, date, current }) => {
-    let d = data.map( (d, idx) => ( <Card key={idx} title={d.name} value={(d.currentPrice)} date={date} current={current}/> ) );
+const DutchWrapper: React.FC<DutchWrapperProps> = ({ data, date, current, buy }) => {
+    let d = data.map( (d, idx) => ( <Card key={idx} title={d.name} value={(d.currentPrice)} date={date} current={current} buy={buy}/> ) );
     return (
       <>
         { d }
@@ -28,45 +30,29 @@ const DutchWrapper: React.FC<DutchWrapperProps> = ({ data, date, current }) => {
 export default DutchWrapper;
 
 
-export function Card( { title, value, date, current } :  {  title:string,  value:number|BigNumber, date:string|null, current:boolean|null } ) {
+export function Card( { title, value, date, current, buy } :  {  title:string,  value:number|BigNumber, date:string|null, current:boolean|null, buy:Function } ) {
   const { signer, contract } = useMyContext();
-
   const [ valueOffer, setValueOffer ] = useState<number>(0);
   const [ errMsg, setErrMsg ] = useState<string|null>(null);
 
   let val = (value instanceof BigNumber ) ? ethers.utils.formatEther( value ) : value;
   let style  = {
-    background: current ? '' : '#838383'
+    background: current ? '' : '#838383',
+    marginBottom: '10px'
   };
 
   let stylePrice  = {
     background: current ? '' : '#c9c9c9'
   };
 
-  const placeOfferHandle = async () => {
-    if( signer && contract ) {
-      const articleIndex = 0;
-      const bidAmount = ethers.utils.parseUnits(valueOffer.toString(), 'ether');
-      try {
-        const signedTransaction = await signer.sendTransaction({
-              to: contract.address,
-              value: bidAmount,
-              data: contract.interface.encodeFunctionData('placeBid', [articleIndex]),
-        });
-        
-        const receipt = await signedTransaction.wait();
-        console.log('fin', receipt);
-      } catch( e:any ) {
-
-        let msg = ( e.data && e.data.message ) ? e.data.message : e;
-        setErrMsg(msg);
-      }
-    }
-  };
-
   const handleChangeOffer = ( e:any ) => {
     const value = e.target.value ? parseFloat(e.target.value) : 0;
     setValueOffer(value);
+  }
+
+  const placeOfferHandle = () => {
+    console.log('place');
+    buy( valueOffer, setErrMsg );
   }
 
   return (

@@ -1,9 +1,11 @@
-export default function Win() {
+'use client';
+import { CurrentAuctions } from "../composants/currentAuctions";
+import { WinAuctions } from "../composants/winAuctions";
+
+const Win = () => {
   return (
-    <>
-      <div style={{ background: '#EAEAEA', height: '100vh', }}>
-          Win
-      </div>
-    </>
+      <WinAuctions/>
   );
 }
+
+export default Win;
