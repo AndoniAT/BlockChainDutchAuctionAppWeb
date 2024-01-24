@@ -1,7 +1,10 @@
+'use client';
 import { LostAuctions } from "../composants/lostAuctions";
 
-export default function Lost() {
+const Lost = () => {
   return (
-    <LostAuctions></LostAuctions>
+    <LostAuctions/>
   );
 }
+
+export default Lost;
