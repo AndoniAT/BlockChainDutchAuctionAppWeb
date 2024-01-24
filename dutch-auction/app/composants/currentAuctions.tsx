@@ -6,6 +6,8 @@ import DutchWrapper from '@/app/composants/dutchs';
 import daiAbi from '@/app/composants/abi';
 import { MyContextProvider, useMyContext } from '@/app/dashboard/context';
 import { cp } from "fs";
+const axios = require('axios');
+
 
 interface AuctionProps {}
 interface Article {
@@ -15,16 +17,15 @@ interface Article {
     winningBidder:any,
     closed:boolean,
     boughtFor:number|BigNumber
+    bought:number|BigNumber|null
 }
 
 function humanReadableSeconds ( seconds:number ) {
     let sec = seconds % 60;
-
     let totMin = parseInt( String(seconds / 60) );
     let hour = parseInt( String(totMin / 60) );
     let min = totMin % 60;
     let parseTime = ( val:any ) => `${ (val <= 9 ) ? '0' : ''}${val}`
-    
     return `${parseTime(hour)}:${parseTime(min)}:${parseTime( sec )}`;
 }
 
@@ -42,12 +43,9 @@ export function CurrentAuctions(props: AuctionProps) {
         if( contract ) {
             const startTime = await contract.getStartTime();
             const now = Math.floor(new Date().getTime() / 1000);
-    
             const elapsedTime = now - startTime;
-            
-    
             setTimeElapsed(humanReadableSeconds(elapsedTime));
-            
+            /*
             const interval = await contract.INTERVAL();
             const decrements = Math.floor(elapsedTime / interval);
     
@@ -56,7 +54,8 @@ export function CurrentAuctions(props: AuctionProps) {
             const currentPrice = startingPrice - (priceDec * decrements);
             const reservePrice = await contract.RESERVE_PRICE();
             let res = Math.max(currentPrice, reservePrice) / (10 ** 18);
-            return res;
+            return res;*/
+            return;
         } else {
             return 0;
         }
@@ -64,14 +63,31 @@ export function CurrentAuctions(props: AuctionProps) {
 
     const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contract | null,  setTimeElapsed:Function, setArticles:Function, articles:Article[] ) => {
         if( daiContract ) {
-            let price = await getCurrentPrice( daiContract, setTimeElapsed );
+            if(provider ) {
+                const ganacheUrl = process.env.GANACHE_URL;
+
+                const inc_time = await axios.post(ganacheUrl, {
+                    jsonrpc: '2.0',
+                    method: 'evm_increaseTime',
+                    params: [0], // 120 secondes
+                    id: new Date().getTime()
+                });
+
+                const response = await axios.post(ganacheUrl, {
+                    jsonrpc: '2.0',
+                    method: 'evm_mine',
+                    id: 1,
+                });
+            }
+            await getCurrentPrice( daiContract, setTimeElapsed );
+            const p = await daiContract.callStatic.getCurrentPrice();
+            let price = p;//await getCurrentPrice( daiContract, setTimeElapsed );
             const articleTemp = await daiContract.callStatic.getCurrentArticle();
             setCuerrentArticle( {
                 ... articleTemp,
                 currentPrice: price
             } );
             let find = articles.find( a => a.id.eq(articleTemp.id) );
-            //console.log("check", articleTemp);
             if( find ) {
                 const articlesTemp = articles.filter( ( a:Article ) => a.id.toNumber() != articleTemp.id.toNumber() )
                 setArticles( articlesTemp );
@@ -102,22 +118,20 @@ export function CurrentAuctions(props: AuctionProps) {
         if( signer && contract && currentArticle ) {
           const articleIndex = currentArticle.id.toNumber() - 1;
           const bidAmount = ethers.utils.parseUnits(valueOffer.toString(), 'ether');
-          //console.log('buy', bidAmount);
           try {
             const signedTransaction = await signer.sendTransaction({
                   to: contract.address,
                   value: bidAmount,
                   data: contract.interface.encodeFunctionData('placeBid', [articleIndex]),
             });
-            console.log('signer wait');
             const receipt = await signedTransaction.wait();
-            console.log('fin', receipt);
             setArticles([]);
             setCuerrentArticle(null);
           } catch ( e:any ) {
-    
-            let msg = ( e.data && e.data.message ) ? e.data.message : e;
-            setErrMsg(msg);
+            if( e.data && e.data.message ) {
+                let msg = e.data.message;
+                setErrMsg(msg);
+            }
           }
         }
       };

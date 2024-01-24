@@ -11,7 +11,8 @@ interface Article {
     currentPrice:number|BigNumber,
     winningBidder:any,
     closed:boolean,
-    boughtFor:number|BigNumber
+    boughtFor:number|BigNumber,
+    bought:number|BigNumber|null
 }
 
 import { MyContextProvider, useMyContext } from '@/app/dashboard/context';

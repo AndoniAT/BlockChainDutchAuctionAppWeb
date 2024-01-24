@@ -8,7 +8,8 @@ interface Article {
     currentPrice:number|BigNumber,
     winningBidder:any,
     closed:boolean,
-    boughtFor:number|BigNumber
+    boughtFor:number|BigNumber,
+    bought:number|BigNumber|null
 }
 
 interface DutchWrapperProps {
@@ -19,7 +20,7 @@ interface DutchWrapperProps {
 };
 
 const DutchWrapper: React.FC<DutchWrapperProps> = ({ data, date, current, buy }) => {
-    let d = data.map( (d, idx) => ( <Card key={idx} title={d.name} value={(d.currentPrice)} date={date} current={current} buy={buy}/> ) );
+    let d = data.map( (d, idx) => ( <Card key={idx} title={d.name} value={(d.currentPrice)} date={date} current={current} buy={buy} boughtAt={d.bought} /> ) );
     return (
       <>
         { d }
@@ -30,7 +31,7 @@ const DutchWrapper: React.FC<DutchWrapperProps> = ({ data, date, current, buy })
 export default DutchWrapper;
 
 
-export function Card( { title, value, date, current, buy } :  {  title:string,  value:number|BigNumber, date:string|null, current:boolean|null, buy:Function } ) {
+export function Card( { title, value, date, current, buy, boughtAt } :  {  title:string,  value:number|BigNumber, date:string|null, current:boolean|null, buy:Function, boughtAt:number|BigNumber|null } ) {
   const { signer, contract } = useMyContext();
   const [ valueOffer, setValueOffer ] = useState<number>(0);
   const [ errMsg, setErrMsg ] = useState<string|null>(null);
@@ -51,14 +52,13 @@ export function Card( { title, value, date, current, buy } :  {  title:string,  
   }
 
   const placeOfferHandle = () => {
-    console.log('place');
     buy( valueOffer, setErrMsg );
   }
 
   return (
     <div className="rounded-xl bg-gray-50 p-2 shadow-sm" style={style}>
       <div className="flex p-4" style={{justifyContent: 'space-between'}}>
-        <h3 className="ml-2 text-sm font-medium">{title} - {date} {current ? '( en cours )' : ''}</h3>
+        <h3 className="ml-2 text-sm font-medium">{title} - {date} {current ? '( en cours )' : ''} { ( boughtAt  ) ? boughtAt.toString() != '0' ? boughtAt.toString() : '' : '' }</h3>
         { (current) ?
             <div>
               <div style={{textAlign: 'end'}}>
