@@ -31,13 +31,25 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
     const [ currentArticle, setCuerrentArticle ] = useState<Article | null>(null);
     const [ auction, setAuction ] = useState<Auction | null>(null);
     const { contract, provider, signer } = useMyContext();
-
+    const [ signerAddress, setSignerAddress] = useState<any>(null);
     const getCurrentPrice = async( contract: ethers.Contract | null, setTimeElapsed:Function) => {
         if( contract ) {
             const startTime = await contract.getStartTime( id );
             const now = Math.floor(new Date().getTime() / 1000);
             const elapsedTime = now - startTime;
             setTimeElapsed(humanReadableSeconds(elapsedTime));
+
+            // Price 
+            const interval = await contract.INTERVAL();
+            const decrements = Math.floor(elapsedTime / interval);
+    
+            const startingPrice = await contract.STARTING_PRICE();
+            const priceDec = await contract.PRICE_DECREMENT();
+            const currentPrice = startingPrice - (priceDec * decrements);
+            const reservePrice = await contract.RESERVE_PRICE();
+            let res = Math.max(currentPrice, reservePrice) / (10 ** 18);
+            return res;
+    
             return;
         } else {
             return 0;
@@ -54,25 +66,8 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
      */
     const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contract | null,  setTimeElapsed:Function, setArticles:Function, articles:Article[] ) => {
         if( daiContract ) {
-            if( provider ) {
-                const ganacheUrl = process.env.GANACHE_URL;
-
-                const inc_time = await axios.post(ganacheUrl, {
-                    jsonrpc: '2.0',
-                    method: 'evm_increaseTime',
-                    params: [0], // 120 secondes
-                    id: new Date().getTime()
-                });
-
-                const response = await axios.post(ganacheUrl, {
-                    jsonrpc: '2.0',
-                    method: 'evm_mine',
-                    id: 1,
-                });
-            }
-
-            await getCurrentPrice( daiContract, setTimeElapsed );
-            let price = await daiContract.callStatic.getCurrentPrice( id );
+            let p = await getCurrentPrice( daiContract, setTimeElapsed );
+            let price = p;//await daiContract.callStatic.getCurrentPrice( id );
             const articleTemp = await daiContract.callStatic.getCurrentArticle( id );
             
             let newArticleTime = { ... articleTemp, currentPrice: price  };
@@ -100,7 +95,9 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
     useEffect(() => {
         const intervalId = setInterval(() => {
             fetchArticles().then( articlesTemp => {
-                fetchPrice( setCuerrentArticle, contract, setTimeElapsed, setArticles, articlesTemp );
+                if( articlesTemp.length > 0 ) {
+                    fetchPrice( setCuerrentArticle, contract, setTimeElapsed, setArticles, articlesTemp );
+                }
             } );
         }, 1000);
         
@@ -108,11 +105,18 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
             // Etablir l'enchere
             contract.getAuction(id).then( (auct:Auction) => setAuction(auct) );
         }
+        
+        (async() => {
+            if( !signerAddress && signer ) {
+                setSignerAddress( await signer.getAddress() );
+            }
+
+        })();
 
         return () => clearInterval(intervalId);
     }, [ currentArticle ])
     
-    if( articles && !currentArticle ) {
+    if( articles.length > 0 && !currentArticle ) {
         fetchPrice( setCuerrentArticle, contract, setTimeElapsed, setArticles, articles );
     }
 
@@ -126,6 +130,23 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
           const articleIndex = currentArticle.id.toNumber() - 1;
           const bidAmount = ethers.utils.parseUnits(valueOffer.toString(), 'ether');
           try {
+            if( provider ) {
+                const ganacheUrl = process.env.GANACHE_URL;
+
+                const inc_time = await axios.post(ganacheUrl, {
+                    jsonrpc: '2.0',
+                    method: 'evm_increaseTime',
+                    params: [0],
+                    id: new Date().getTime()
+                });
+
+                const response = await axios.post(ganacheUrl, {
+                    jsonrpc: '2.0',
+                    method: 'evm_mine',
+                    id: 1,
+                });
+            }  
+
             // Envoyer la transaction en envoyant en parametres l'index de l'article et l'id de l'enchère
             const signedTransaction = await signer.sendTransaction({
                   to: contract.address,
@@ -137,6 +158,7 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
 
             //Redemarrer les articles
             setArticles([]);
+            contract.getAuction(id).then( (auct:Auction) => setAuction(auct) );
             setCuerrentArticle(null);
           } catch ( e:any ) {
             if( e.data && e.data.message ) {
@@ -149,10 +171,16 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
         }
       };
 
+    let style = {
+        monEnchere : {
+            background: (auction?.auctioneer == (signerAddress)) ? 'rgb(148 190 229)': '#CBCBCB'
+        }
+    }
+
     return (
         <>
-            <div style={{ background: '#CBCBCB', width: '80%', borderRadius: '10px', minHeight: 'fit-content', padding: '20px', margin:'20px auto' }}>
-                <p> Auction: { auction ? auction.name : '' }</p>
+            <div style={ { ...style.monEnchere, ...{ width: '80%', borderRadius: '10px', minHeight: 'fit-content', padding: '20px', margin:'20px auto' }} }>
+                <h2 style={{fontSize: '20px'}}> Enchère : { auction ? auction.name : '' } { auction?.auctioneer == (signerAddress) ? '- (Mon Enchère)': '' }</h2>
                 <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1" style={{marginBottom: '10px'}}>
                     <Suspense fallback={<DutchsSkeleton />}>
                         <DutchWrapper data={( currentArticle ) ? [currentArticle] : []} date={timeElapsed} current={true} buy={placeOfferHandle}/>

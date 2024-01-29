@@ -1,5 +1,5 @@
 "use client"
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { BigNumber } from "ethers";
 import DutchWrapper from '@/app/composants/dutchs';
 import { DutchsSkeleton } from '@/app/composants/skeletons';
@@ -13,6 +13,7 @@ export const LostAuctions:React.FC<AuctionProps> = ({ id }) => {
     const [ articles, setArticles ] = useState<Article[]>([]);
     const [ auction, setAuction ] = useState<Auction | null>(null);
     const { contract, signer } = useMyContext();
+    const [ signerAddress, setSignerAddress] = useState<any>(null);
 
     /**
      * Ontenir les articles fermés et les filtrer par id ceux qui sont differents à l'id du signer
@@ -39,10 +40,26 @@ export const LostAuctions:React.FC<AuctionProps> = ({ id }) => {
     // Mettre à jour l'enchère
     if( !auction && contract) contract.getAuction(id).then( (auct:Auction) => setAuction(auct) );
     
+
+    useEffect(() => {
+        (async() => {
+            if( !signerAddress && signer ) {
+                setSignerAddress( await signer.getAddress() );
+            }
+
+        })();
+    }, []);
+
+    let style = {
+        monEnchere : {
+            background: (auction?.auctioneer == (signerAddress)) ? 'rgb(148 190 229)': '#CBCBCB'
+        }
+    }
+
     return (
         <>
-            <div style={{ background: '#CBCBCB', width: '80%', margin: '20px auto', borderRadius: '10px', minHeight: 'fit-content', padding: '20px' }}>
-                <p> Enchère : { auction ? auction.name : '' }</p>
+            <div style={ { ...style.monEnchere, ...{ width: '80%', margin: '20px auto', borderRadius: '10px', minHeight: 'fit-content', padding: '20px' }} }>
+                <h2 style={{fontSize: '20px'}}> Enchère : { auction ? auction.name : '' } { auction?.auctioneer == (signerAddress) ? ' - (Mon Enchère)': '' }</h2>
                 <Suspense fallback={<DutchsSkeleton />}>
                     <DutchWrapper data={articles} date={null} current={false} buy={()=>{}}/>
                 </Suspense>

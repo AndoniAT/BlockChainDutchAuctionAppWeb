@@ -60,7 +60,7 @@ const ChooseContract = () => {
           <div style={{ width: '70%', padding: '20px', margin: '13% auto', border: '1px solid #9f9696', borderRadius: '10px' }}>
             <form onSubmit={onSubmit}>
               <div style={{ textAlign: 'center', display: 'inline-flex', flexDirection: 'column', justifyContent: 'center', width: '100%'}}>
-                <p>Address du contrat de l'enchere</p>
+                <p>Address du contrat dees enchères</p>
                 <input type="text" name="addressContract" style={{ marginBottom: '20px'}}/>
                 <button type="submit" style={{ padding: '10px', border: '1px solid black', borderRadius: '10px', background: '#7EC9EB'}}>
                   Se connecter

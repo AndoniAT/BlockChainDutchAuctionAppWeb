@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from 'next/image'
+import { useMyContext } from "../dashboard/context";
 
 interface NavBarProps {
   setActiveSection: Function,
@@ -7,6 +8,7 @@ interface NavBarProps {
 }
 
 export function NavBar({setActiveSection, active}: NavBarProps) {
+  const { contract } = useMyContext();
   const selectedColor = '#69accf';
 
     const styles = {
@@ -24,6 +26,9 @@ export function NavBar({setActiveSection, active}: NavBarProps) {
         },
         loose : {
           background: (active == 'loose') ? selectedColor : ''
+        },
+        create : {
+          background: (active == 'create') ? selectedColor : ''
         }
     };
     return (
@@ -39,15 +44,25 @@ export function NavBar({setActiveSection, active}: NavBarProps) {
                 alt="Picture of the author"
                 />
               </div>
-              <li style={{ ...styles.navBarElement, ...styles.win }} onClick={() => {setActiveSection("win");}}>
-                  <p>Encheres gagnés</p>
-              </li>
-              <li style={{ ...styles.navBarElement, ...styles.loose }} onClick={() => {setActiveSection("loose");}}>
-                  <p>Encheres perdus</p>
-              </li>
-              <li style={{ ...styles.navBarElement, ...styles.now }} onClick={() => {setActiveSection("now");}}>
-                  <p>Encheres en cours</p>
-              </li>
+              { (contract) ? 
+                ( 
+                <>
+                  <li style={{ ...styles.navBarElement, ...styles.win }} onClick={() => {setActiveSection("win");}}>
+                      <p>Encheres gagnés</p>
+                  </li>
+                  <li style={{ ...styles.navBarElement, ...styles.loose }} onClick={() => {setActiveSection("loose");}}>
+                      <p>Encheres perdus</p>
+                  </li>
+                  <li style={{ ...styles.navBarElement, ...styles.now }} onClick={() => {setActiveSection("now");}}>
+                      <p>Encheres en cours</p>
+                  </li>
+                  <li style={{ ...styles.navBarElement, ...styles.create }} onClick={() => {setActiveSection("create");}}>
+                      <p>Creer un Enchere</p>
+                  </li>
+                </>
+                ) : 
+                <></>
+               }
             </ul>
           </div>
         </div>

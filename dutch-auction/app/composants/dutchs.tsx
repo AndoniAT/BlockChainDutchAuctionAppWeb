@@ -20,7 +20,7 @@ interface DutchWrapperProps {
 };
 
 const DutchWrapper: React.FC<DutchWrapperProps> = ({ data, date, current, buy }) => {
-    let d = data.map( (d, idx) => ( <Card key={idx} title={d.name} value={(d.currentPrice)} date={date} current={current} buy={buy} boughtAt={d.bought} /> ) );
+    let d = data.length > 0 ? data.map( (d, idx) => ( <Card key={idx} title={d.name} value={(d.currentPrice)} date={date} current={current} buy={buy} boughtAt={d.bought} /> ) ) : [];
     return (
       <>
         { d }

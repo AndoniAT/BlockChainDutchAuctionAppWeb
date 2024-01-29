@@ -6,6 +6,7 @@ import Now from '@/app/dashboard/now';
 import ChooseContract from './chooseContract';
 import Win from './win';
 import Lost from './lost';
+import Create from './create';
 
 const Menu = () => {
   const [ active, setActive ] = useState<string>('choose');
@@ -18,6 +19,7 @@ const Menu = () => {
       { (active == "now") ? <Now/> : <></>}
       { (active == "win") ? <Win/> : <></>}
       { (active == "loose") ? <Lost/> : <></>}
+      { (active == "create") ? <Create/> : <></>}
     </MyContextProvider>
   )
 }
