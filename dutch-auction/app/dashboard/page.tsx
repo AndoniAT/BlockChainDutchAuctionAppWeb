@@ -7,6 +7,7 @@ import ChooseContract from './chooseContract';
 import Win from './win';
 import Lost from './lost';
 import Create from './create';
+import MyAuctions from './myAuctions';
 
 const Menu = () => {
   const [ active, setActive ] = useState<string>('choose');
@@ -20,6 +21,7 @@ const Menu = () => {
       { (active == "win") ? <Win/> : <></>}
       { (active == "loose") ? <Lost/> : <></>}
       { (active == "create") ? <Create/> : <></>}
+      { (active == "myAuctions") ? <MyAuctions/> : <></>}
     </MyContextProvider>
   )
 }

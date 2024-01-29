@@ -11,7 +11,7 @@ const Now = () => {
     useEffect(() => {
         if( auctions.length == 0 && contract ) {
           (async () => {
-            let auctions = await contract.getAuctions();
+            let auctions = await contract.getOpenAuctions();
             let me = await signer?.getAddress();
             let myAuctions = auctions.filter( (a:Auction) => a.auctioneer == me );
             let otherAuctions = auctions.filter( (a:Auction) => a.auctioneer != me );
@@ -24,7 +24,6 @@ const Now = () => {
                 };
             }));
             allAuctions = allAuctions.map( (a:any) => <CurrentAuctions id={a.id} key={a.id}></CurrentAuctions>);
-
             setAuctions(allAuctions);
           })();
         }

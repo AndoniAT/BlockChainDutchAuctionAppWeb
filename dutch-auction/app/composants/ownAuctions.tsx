@@ -6,6 +6,7 @@ import DutchWrapper from '@/app/composants/currentDutchWrapper';
 import { useMyContext } from '@/app/dashboard/context';
 import { Auction } from "./interfaces/Auction";
 import { Article  } from "./interfaces/Article";
+import OwnDutchWrapper from "./ownDutchWrapper";
 
 const axios = require('axios');
 interface AuctionProps { 
@@ -27,7 +28,7 @@ function humanReadableSeconds ( seconds:number ) {
     return `${parseTime(hour)}:${parseTime(min)}:${parseTime( sec )}`;
 }
 
-export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
+export const OwnAuctions:React.FC<AuctionProps> = ({  id }) => {
     const [ timeElapsed, setTimeElapsed] = useState<string|null>(null);
     const [ articles, setArticles ] = useState<Article[]>([]);
     const [ currentArticle, setCuerrentArticle ] = useState<Article | null>(null);
@@ -39,7 +40,9 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
             const startTime = await contract.getStartTime( id );
             const now = Math.floor(new Date().getTime() / 1000);
             const elapsedTime = now - startTime;
-            setTimeElapsed(humanReadableSeconds(elapsedTime));
+            if( auction && !auction.closed ) {
+                setTimeElapsed(humanReadableSeconds(elapsedTime));
+            }
 
             // Price 
             const interval = await contract.INTERVAL();
@@ -69,19 +72,12 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
     const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contract | null,  setTimeElapsed:Function, setArticles:Function, articles:Article[] ) => {
         if( daiContract ) {
             let p = await getCurrentPrice( daiContract, setTimeElapsed );
-            let price = p;//await daiContract.callStatic.getCurrentPrice( id );
+            let price = p;
             const articleTemp = await daiContract.callStatic.getCurrentArticle( id );
             
             let newArticleTime = { ... articleTemp, currentPrice: price  };
             setCuerrentArticle( newArticleTime );
-
-            let find = articles.find( a => a.id.eq(articleTemp.id) ); // Trouver l'article
-
-            if( find ) {
-                // Filtrer l'article actuel de la liste des articles pour l'afficher separement
-                const articlesTemp = articles.filter( ( a:Article ) => a.id.toNumber() != articleTemp.id.toNumber() )
-                setArticles( articlesTemp );
-            }
+            setArticles( articles );
         }
     }
 
@@ -90,7 +86,7 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
      * @returns liste des articles ouverts de l'enchère
      */
     const fetchArticles = async () => {
-        const articlesTemp = contract ? await contract.callStatic.getOpenArticles( id ) : [];
+        const articlesTemp = contract ? await contract.callStatic.getArticles( id ) : [];
         return articlesTemp;
     }
 
@@ -122,56 +118,42 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
         fetchPrice( setCuerrentArticle, contract, setTimeElapsed, setArticles, articles );
     }
 
-    /**
-     * Placer une offre
-     * @param valueOffer : Valeur offert
-     * @param setErrMsg : Fonction pour établir un message d'erreur
-     */
-    const placeOfferHandle = async ( valueOffer:number, setErrMsg:Function ) => {
+    const changeStateAuction = async () => {
         if( signer && contract && currentArticle ) {
-          const articleIndex = currentArticle.id.toNumber() - 1;
-          const bidAmount = ethers.utils.parseUnits(valueOffer.toString(), 'ether');
-          try {
-            if( provider ) {
-                const ganacheUrl = process.env.GANACHE_URL;
+            const bidAmount = ethers.utils.parseUnits('0', 'ether');
+            try {
+                if( provider ) {
+                    const ganacheUrl = process.env.GANACHE_URL;
+    
+                    const inc_time = await axios.post(ganacheUrl, {
+                        jsonrpc: '2.0',
+                        method: 'evm_increaseTime',
+                        params: [0],
+                        id: new Date().getTime()
+                    });
+    
+                    const response = await axios.post(ganacheUrl, {
+                        jsonrpc: '2.0',
+                        method: 'evm_mine',
+                        id: 1,
+                    });
+                }  
 
-                const inc_time = await axios.post(ganacheUrl, {
-                    jsonrpc: '2.0',
-                    method: 'evm_increaseTime',
-                    params: [0],
-                    id: new Date().getTime()
-                });
-
-                const response = await axios.post(ganacheUrl, {
-                    jsonrpc: '2.0',
-                    method: 'evm_mine',
-                    id: 1,
-                });
-            }  
-
-            // Envoyer la transaction en envoyant en parametres l'index de l'article et l'id de l'enchère
-            const signedTransaction = await signer.sendTransaction({
-                  to: contract.address,
-                  value: bidAmount,
-                  data: contract.interface.encodeFunctionData('placeBid', [articleIndex, id]),
-            } );
-
-            const receipt = await signedTransaction.wait();
-
-            //Redemarrer les articles
-            setArticles([]);
-            contract.getAuction(id).then( (auct:Auction) => setAuction(auct) );
-            setCuerrentArticle(null);
-          } catch ( e:any ) {
-            if( e.data && e.data.message ) {
-                let msg = e.data.message;
-                setErrMsg( msg );
-            } else {
+                let functionCall = ( auction?.closed ) ? 'openAuction': 'closeAuction';
+                const signedTransaction = await signer.sendTransaction({
+                    to: contract.address,
+                    value: bidAmount,
+                    data: contract.interface.encodeFunctionData(functionCall, [id]),
+              } );
+              const receipt = await signedTransaction.wait();
+              setArticles([]);
+              contract.getAuction(id).then( (auct:Auction) => setAuction(auct) );
+              setCuerrentArticle(null);
+            } catch ( e:any ) {
                 console.log( e );
             }
           }
-        }
-      };
+    };
 
     let style = {
         monEnchere : {
@@ -182,15 +164,13 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
     return (
         <>
             <div style={ { ...style.monEnchere, ...{ width: '80%', borderRadius: '10px', minHeight: 'fit-content', padding: '20px', margin:'20px auto' }} }>
-                <h2 style={{fontSize: '20px'}}> Enchère : { auction ? auction.name : '' } { auction?.auctioneer == (signerAddress) ? '- (Mon Enchère)': '' }</h2>
-                <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1" style={{marginBottom: '10px'}}>
-                    <Suspense fallback={<DutchsSkeleton />}>
-                        <DutchWrapper data={( currentArticle ) ? [currentArticle] : []} date={timeElapsed} current={true} buy={placeOfferHandle}/>
-                    </Suspense>
+                <div className="flex p-4" style={{justifyContent: 'space-between'}}>
+                    <h2 style={{fontSize: '20px'}}> Enchère : { auction ? auction.name : '' } { auction?.auctioneer == (signerAddress) ? '- (Mon Enchère)': '' }</h2>
+                    <button type="button" style={{ padding: '10px 10px', background:'#2fab418a', borderRadius: '10px', cursor: 'pointer'}} onClick={changeStateAuction} > { (auction?.closed) ? "Ouvrir l'enchère" : "Fermer l'enchère" }</button>
                 </div>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <Suspense fallback={<DutchsSkeleton />}>
-                    <DutchWrapper data={articles} date={null} current={false} buy={()=>{}}/>
+                    <OwnDutchWrapper data={articles} date={auction?.closed ? null : timeElapsed} current={false} closed={auction?.closed} auctionId={id}/>
                 </Suspense>
                 </div>
             </div>

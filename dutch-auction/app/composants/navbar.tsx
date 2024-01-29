@@ -29,6 +29,9 @@ export function NavBar({setActiveSection, active}: NavBarProps) {
         },
         create : {
           background: (active == 'create') ? selectedColor : ''
+        },
+        myAuctions : {
+          background: (active == 'myAuctions') ? selectedColor : ''
         }
     };
     return (
@@ -58,6 +61,9 @@ export function NavBar({setActiveSection, active}: NavBarProps) {
                   </li>
                   <li style={{ ...styles.navBarElement, ...styles.create }} onClick={() => {setActiveSection("create");}}>
                       <p>Creer un Enchere</p>
+                  </li>
+                  <li style={{ ...styles.navBarElement, ...styles.myAuctions }} onClick={() => {setActiveSection("myAuctions");}}>
+                      <p>Mes Encheres</p>
                   </li>
                 </>
                 ) : 

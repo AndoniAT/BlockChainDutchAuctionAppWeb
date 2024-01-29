@@ -8,5 +8,6 @@ export interface Auction {
     auctioneer:any,
     articles: Article[],
     auctionStartTime: number|BigNumber,
-    startTimeCurrentAuction: number|BigNumber
+    startTimeCurrentAuction: number|BigNumber,
+    closed:boolean
 }

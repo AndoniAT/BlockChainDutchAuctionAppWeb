@@ -10,6 +10,19 @@ const abi = [
             {
                 "indexed": true,
                 "internalType": "uint256",
+                "name": "auctionIndex",
+                "type": "uint256"
+            }
+        ],
+        "name": "AuctionClosed",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
                 "name": "articleIndex",
                 "type": "uint256"
             },
@@ -152,9 +165,27 @@ const abi = [
                 "internalType": "uint256",
                 "name": "startTimeCurrentAuction",
                 "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "closed",
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "auctionIndex",
+                "type": "uint256"
+            }
+        ],
+        "name": "closeAuction",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -168,6 +199,11 @@ const abi = [
                 "internalType": "string[]",
                 "name": "articles",
                 "type": "string[]"
+            },
+            {
+                "internalType": "bool",
+                "name": "closed",
+                "type": "bool"
             }
         ],
         "name": "createAuction",
@@ -333,6 +369,11 @@ const abi = [
                         "internalType": "uint256",
                         "name": "startTimeCurrentAuction",
                         "type": "uint256"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "closed",
+                        "type": "bool"
                     }
                 ],
                 "internalType": "struct DutchAuction.Auction",
@@ -420,6 +461,109 @@ const abi = [
                         "internalType": "uint256",
                         "name": "startTimeCurrentAuction",
                         "type": "uint256"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "closed",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct DutchAuction.Auction[]",
+                "name": "",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "auctioneer",
+                "type": "address"
+            }
+        ],
+        "name": "getAuctionsFor",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "currentArticleIndex",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "auctioneer",
+                        "type": "address"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "uint256",
+                                "name": "id",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "name",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "currentPrice",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "winningBidder",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "bool",
+                                "name": "closed",
+                                "type": "bool"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "bought",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "boughtFor",
+                                "type": "uint256"
+                            }
+                        ],
+                        "internalType": "struct DutchAuction.Article[]",
+                        "name": "articles",
+                        "type": "tuple[]"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "auctionStartTime",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "startTimeCurrentAuction",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "closed",
+                        "type": "bool"
                     }
                 ],
                 "internalType": "struct DutchAuction.Auction[]",
@@ -479,6 +623,98 @@ const abi = [
                     }
                 ],
                 "internalType": "struct DutchAuction.Article[]",
+                "name": "",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getClosedAuctions",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "currentArticleIndex",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "auctioneer",
+                        "type": "address"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "uint256",
+                                "name": "id",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "name",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "currentPrice",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "winningBidder",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "bool",
+                                "name": "closed",
+                                "type": "bool"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "bought",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "boughtFor",
+                                "type": "uint256"
+                            }
+                        ],
+                        "internalType": "struct DutchAuction.Article[]",
+                        "name": "articles",
+                        "type": "tuple[]"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "auctionStartTime",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "startTimeCurrentAuction",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "closed",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct DutchAuction.Auction[]",
                 "name": "",
                 "type": "tuple[]"
             }
@@ -637,6 +873,98 @@ const abi = [
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "getOpenAuctions",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "currentArticleIndex",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "auctioneer",
+                        "type": "address"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "uint256",
+                                "name": "id",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "name",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "currentPrice",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "winningBidder",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "bool",
+                                "name": "closed",
+                                "type": "bool"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "bought",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "boughtFor",
+                                "type": "uint256"
+                            }
+                        ],
+                        "internalType": "struct DutchAuction.Article[]",
+                        "name": "articles",
+                        "type": "tuple[]"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "auctionStartTime",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "startTimeCurrentAuction",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "closed",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct DutchAuction.Auction[]",
+                "name": "",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "uint256",
@@ -666,6 +994,19 @@ const abi = [
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "auctionIndex",
+                "type": "uint256"
+            }
+        ],
+        "name": "openAuction",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
