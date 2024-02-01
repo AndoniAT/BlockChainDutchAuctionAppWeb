@@ -170,6 +170,31 @@ const abi = [
                 "internalType": "bool",
                 "name": "closed",
                 "type": "bool"
+            },
+            {
+                "internalType": "uint256",
+                "name": "auction_duration",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "starting_price",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "price_decrement",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "reserve_price",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "interval",
+                "type": "uint256"
             }
         ],
         "stateMutability": "view",
@@ -204,6 +229,31 @@ const abi = [
                 "internalType": "bool",
                 "name": "closed",
                 "type": "bool"
+            },
+            {
+                "internalType": "uint256",
+                "name": "auction_duration",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "starting_price",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "price_decrement",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "reserve_price",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "interval",
+                "type": "uint256"
             }
         ],
         "name": "createAuction",
@@ -374,6 +424,31 @@ const abi = [
                         "internalType": "bool",
                         "name": "closed",
                         "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "auction_duration",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "starting_price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "price_decrement",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "reserve_price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "interval",
+                        "type": "uint256"
                     }
                 ],
                 "internalType": "struct DutchAuction.Auction",
@@ -466,6 +541,31 @@ const abi = [
                         "internalType": "bool",
                         "name": "closed",
                         "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "auction_duration",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "starting_price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "price_decrement",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "reserve_price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "interval",
+                        "type": "uint256"
                     }
                 ],
                 "internalType": "struct DutchAuction.Auction[]",
@@ -564,6 +664,31 @@ const abi = [
                         "internalType": "bool",
                         "name": "closed",
                         "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "auction_duration",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "starting_price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "price_decrement",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "reserve_price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "interval",
+                        "type": "uint256"
                     }
                 ],
                 "internalType": "struct DutchAuction.Auction[]",
@@ -712,6 +837,31 @@ const abi = [
                         "internalType": "bool",
                         "name": "closed",
                         "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "auction_duration",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "starting_price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "price_decrement",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "reserve_price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "interval",
+                        "type": "uint256"
                     }
                 ],
                 "internalType": "struct DutchAuction.Auction[]",
@@ -954,6 +1104,31 @@ const abi = [
                         "internalType": "bool",
                         "name": "closed",
                         "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "auction_duration",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "starting_price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "price_decrement",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "reserve_price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "interval",
+                        "type": "uint256"
                     }
                 ],
                 "internalType": "struct DutchAuction.Auction[]",

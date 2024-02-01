@@ -6,6 +6,6 @@ export interface Article {
     currentPrice:number|BigNumber,
     winningBidder:any,
     closed:boolean,
-    boughtFor:number|BigNumber
+    boughtFor:BigNumber
     bought:number|BigNumber|null
 }

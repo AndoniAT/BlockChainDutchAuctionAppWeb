@@ -27,8 +27,12 @@ const OwnDutchWrapper: React.FC<DutchWrapperProps> = ({ data, date, current, clo
     useEffect(() => {
         (async () => {
             try {
-                const articleTemp = await contract?.callStatic.getCurrentArticle( auctionId );
-                setCurrentArticleId(articleTemp.id);
+                let auction = await contract?.callStatic.getAuction( auctionId );
+
+                if( auction.currentArticleIndex.toNumber() < auction.articles.length ) {
+                  const articleTemp = await contract?.callStatic.getCurrentArticle( auctionId );
+                  setCurrentArticleId(articleTemp.id);
+                }
             } catch(e) {
                 console.log(e);
             }
@@ -43,7 +47,6 @@ const OwnDutchWrapper: React.FC<DutchWrapperProps> = ({ data, date, current, clo
                 date_data = date;
             }
         }
-
         return  ( 
                 <Card key={idx} title={d.name} value={(d.currentPrice)} date={date_data} current={current} closed={d.closed}/> 
         ) 

@@ -35,8 +35,9 @@ export const OwnAuctions:React.FC<AuctionProps> = ({  id }) => {
     const [ auction, setAuction ] = useState<Auction | null>(null);
     const { contract, provider, signer } = useMyContext();
     const [ signerAddress, setSignerAddress] = useState<any>(null);
+    
     const getCurrentPrice = async( contract: ethers.Contract | null, setTimeElapsed:Function) => {
-        if( contract ) {
+        if( contract && auction ) {
             const startTime = await contract.getStartTime( id );
             const now = Math.floor(new Date().getTime() / 1000);
             const elapsedTime = now - startTime;
@@ -45,13 +46,13 @@ export const OwnAuctions:React.FC<AuctionProps> = ({  id }) => {
             }
 
             // Price 
-            const interval = await contract.INTERVAL();
+            const interval = auction.interval;
             const decrements = Math.floor(elapsedTime / interval);
     
-            const startingPrice = await contract.STARTING_PRICE();
-            const priceDec = await contract.PRICE_DECREMENT();
+            const startingPrice = auction.starting_price;
+            const priceDec =  auction.price_decrement;
             const currentPrice = startingPrice - (priceDec * decrements);
-            const reservePrice = await contract.RESERVE_PRICE();
+            const reservePrice = auction.reserve_price;
             let res = Math.max(currentPrice, reservePrice) / (10 ** 18);
             return res;
     
@@ -70,14 +71,44 @@ export const OwnAuctions:React.FC<AuctionProps> = ({  id }) => {
      * @param articles : Liste des articles
      */
     const fetchPrice = async ( setCuerrentArticle:Function, daiContract:ethers.Contract | null,  setTimeElapsed:Function, setArticles:Function, articles:Article[] ) => {
-        if( daiContract ) {
-            let p = await getCurrentPrice( daiContract, setTimeElapsed );
-            let price = p;
-            const articleTemp = await daiContract.callStatic.getCurrentArticle( id );
-            
-            let newArticleTime = { ... articleTemp, currentPrice: price  };
-            setCuerrentArticle( newArticleTime );
-            setArticles( articles );
+    if( daiContract ) {
+            let auction = await daiContract.getAuction(id);
+            if(auction) {
+                let p = await getCurrentPrice( daiContract, setTimeElapsed );
+                let price = p;
+                if( auction.currentArticleIndex.toNumber() < auction.articles.length && price) {
+                    const articleTemp = await daiContract.callStatic.getCurrentArticle( id );
+                    let newArticleTime = { ... articleTemp, currentPrice: ethers.utils.parseUnits(price.toString(), 'ether') };
+                    setCuerrentArticle( newArticleTime );
+
+                    // Set the current price to the article
+                    let arts = articles.map( a => (a.id.eq(articleTemp.id)) ? newArticleTime : a );
+
+                    // Set the price as tthe price the article has been bought
+                    arts = arts.map( a => {
+                        let newArt = {
+                            ... a,
+                            currentPrice: ( a.boughtFor.gt(ethers.utils.parseUnits("0")) )  ? a.boughtFor : a.currentPrice
+                        }
+                        
+                        return newArt;
+                    } );
+
+                    setArticles( arts );
+                } else {
+                    // Set the price as tthe price the article has been bought
+                    let arts = articles.map( a => {
+                        let newArt = {
+                            ... a,
+                            currentPrice: ( a.boughtFor.gt(ethers.utils.parseUnits("0")) )  ? a.boughtFor : a.currentPrice
+                        }
+                        
+                        return newArt;
+                    } );
+                    setArticles( arts );
+                }
+
+            }
         }
     }
 
@@ -91,6 +122,14 @@ export const OwnAuctions:React.FC<AuctionProps> = ({  id }) => {
     }
 
     useEffect(() => {
+        
+        if( !auction && contract) {
+            // Etablir l'enchere
+            contract.getAuction(id).then( (auct:Auction) => {
+                setAuction(auct)
+             } );
+        }
+
         const intervalId = setInterval(() => {
             fetchArticles().then( articlesTemp => {
                 if( articlesTemp.length > 0 ) {
@@ -99,10 +138,6 @@ export const OwnAuctions:React.FC<AuctionProps> = ({  id }) => {
             } );
         }, 1000);
         
-        if( !auction && contract) {
-            // Etablir l'enchere
-            contract.getAuction(id).then( (auct:Auction) => setAuction(auct) );
-        }
         
         (async() => {
             if( !signerAddress && signer ) {
@@ -166,7 +201,12 @@ export const OwnAuctions:React.FC<AuctionProps> = ({  id }) => {
             <div style={ { ...style.monEnchere, ...{ width: '80%', borderRadius: '10px', minHeight: 'fit-content', padding: '20px', margin:'20px auto' }} }>
                 <div className="flex p-4" style={{justifyContent: 'space-between'}}>
                     <h2 style={{fontSize: '20px'}}> Enchère : { auction ? auction.name : '' } { auction?.auctioneer == (signerAddress) ? '- (Mon Enchère)': '' }</h2>
-                    <button type="button" style={{ padding: '10px 10px', background:'#2fab418a', borderRadius: '10px', cursor: 'pointer'}} onClick={changeStateAuction} > { (auction?.closed) ? "Ouvrir l'enchère" : "Fermer l'enchère" }</button>
+                    {
+                        ( auction && auction.currentArticleIndex.toNumber() < auction.articles.length ) ?
+                            <button type="button" style={{ padding: '10px 10px', background:'#2fab418a', borderRadius: '10px', cursor: 'pointer'}} onClick={changeStateAuction} > { (auction?.closed) ? "Ouvrir l'enchère" : "Fermer l'enchère" }</button>
+                        :
+                        <></>
+                    }
                 </div>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <Suspense fallback={<DutchsSkeleton />}>

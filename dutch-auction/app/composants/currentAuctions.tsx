@@ -35,20 +35,20 @@ export const CurrentAuctions:React.FC<AuctionProps> = ({  id }) => {
     const { contract, provider, signer } = useMyContext();
     const [ signerAddress, setSignerAddress] = useState<any>(null);
     const getCurrentPrice = async( contract: ethers.Contract | null, setTimeElapsed:Function) => {
-        if( contract ) {
+        if( auction && contract ) {
             const startTime = await contract.getStartTime( id );
             const now = Math.floor(new Date().getTime() / 1000);
             const elapsedTime = now - startTime;
             setTimeElapsed(humanReadableSeconds(elapsedTime));
 
             // Price 
-            const interval = await contract.INTERVAL();
+            const interval = auction.interval;
             const decrements = Math.floor(elapsedTime / interval);
     
-            const startingPrice = await contract.STARTING_PRICE();
-            const priceDec = await contract.PRICE_DECREMENT();
+            const startingPrice = auction.starting_price;
+            const priceDec =  auction.price_decrement;
             const currentPrice = startingPrice - (priceDec * decrements);
-            const reservePrice = await contract.RESERVE_PRICE();
+            const reservePrice = auction.reserve_price;
             let res = Math.max(currentPrice, reservePrice) / (10 ** 18);
             return res;
     
