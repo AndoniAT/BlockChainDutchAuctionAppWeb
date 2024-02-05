@@ -43,20 +43,20 @@ export const OwnAuctions:React.FC<AuctionProps> = ({  id }) => {
             const elapsedTime = now - startTime;
             if( auction && !auction.closed ) {
                 setTimeElapsed(humanReadableSeconds(elapsedTime));
+                // Price 
+                const interval = auction.interval;
+                const decrements = Math.floor(elapsedTime / interval);
+        
+                const startingPrice = auction.starting_price;
+                const priceDec =  auction.price_decrement;
+                const currentPrice = startingPrice - (priceDec * decrements);
+                const reservePrice = auction.reserve_price;
+                let res = Math.max(currentPrice, reservePrice) / (10 ** 18);
+                return res;
+            } else {
+                const startingPrice = auction.starting_price;
+                return startingPrice / (10 ** 18 );
             }
-
-            // Price 
-            const interval = auction.interval;
-            const decrements = Math.floor(elapsedTime / interval);
-    
-            const startingPrice = auction.starting_price;
-            const priceDec =  auction.price_decrement;
-            const currentPrice = startingPrice - (priceDec * decrements);
-            const reservePrice = auction.reserve_price;
-            let res = Math.max(currentPrice, reservePrice) / (10 ** 18);
-            return res;
-    
-            return;
         } else {
             return 0;
         }
