@@ -173,40 +173,12 @@ Par contre si on vient sur la liste d'encheres perdus, on verra la liste des art
 ![Lost_Auctions](./Images/18_Encheres_Perdus.png)
 
 
-Cependant, si on place une offre égal ou supérieur au prix actuel on aura une confirmation Metamask pour la transaction.
+Maintenant si on achete tous les elements d'un enchère on verra qu'il desparaît des "Encheres en cours" et son état devient fermé.
+Donc, le créateur de l'enchère, s'il vient sur "Mes encheres"
 
-![ConfirmTransaction](./Images/6_Confirmation_Metamask.png)
+![Closed_Auction](./Images/20_Enchere_ferme_definitivement.png)
 
-
-Faire click sur Confirmer et on verra comment l'Article 1 ne figure plus sur la liste des enchères en cours et que l'application est passée à l'article suivant en redemarrant le prix actuel à 1eth
-
-![ArticleAchete](./Images/7_Article_Achete.png)
-
-Puis on peut venir sur l'onglet "Encheres gagnés" et on trouvera l'article au'on vient d'acheter et le prix pour lequel on l'a acheté.
-
-![ArticleGagne](./Images/8_Gagne_Article.png)
-
-Maintenant revenon sur "Encheres en cours" et changeons de compte sur Metamask.
-
-![ChangerCompte](./Images/9_Changer_Compte.png)
-
-Une fois qu'on est connecté sur un autre compte, acheter l'Article 2 et l'Article 3.
-
-![AcheterPlusArticles](./Images/10_Acheter_2_et_3.png)
-
-On peut voir que les articles 2 et 3 ne figurent plus dans la list actuelle.
-
-On peut venir sur l'onglés "Encheres gagnés".
-
-![GagnesDeuxiemeCompte](./Images/11_Encheres_Gagnes_Deux_Compte.png)
-
-On trouvera les articles 2 et 3 qu'on vient d'acheter.
-
-Puis on vient sur l'onglet "Encheres perdus".
-
-![EncheresPerdus](./Images/12_Encheres_Perdus.png)
-
-Et on trouvera ici le premier Article qu'on a acheté lors qu'on était connecté sur l'autre compte.
+On verra que tous les articles sont fermés (ont été achetés) et on ne peut plus ouvrir l'enchère.
 
 ===========================================================
 
