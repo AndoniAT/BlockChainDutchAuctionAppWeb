@@ -67,6 +67,10 @@ Juste pour vérifier le fonctionnement, j'ai rajouté deux enchères qui commenc
 
 !['Ganache'](./Images/1_Ganache_Contract.png)
 
+## ENV
+
+Veuillez de specifier votre  url ganache avec son port dans un fichier .env, vous pouvez regarder le fichier .env_exemple pour plus des informations.
+
 ## Application WEB
 
 Aller sur http://localhost:3000/
