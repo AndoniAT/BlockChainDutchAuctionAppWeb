@@ -69,7 +69,7 @@ Juste pour vérifier le fonctionnement, j'ai rajouté deux enchères qui commenc
 
 ## Application WEB
 
-Aller sur http://localhost:3000/dashboard
+Aller sur http://localhost:3000/
 
 On arrive sur la page principal, et là on pourra fournir l'address de notre contrat, puis appuyer sur  "Submit"
 

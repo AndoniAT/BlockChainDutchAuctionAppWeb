@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from "ethers";
 import { useEffect, useState } from "react";
-import { MyContextProvider, useMyContext } from '@/app/dashboard/context';
+import { MyContextProvider, useMyContext } from '@/app/context';
 
 interface Article {
     id:BigNumber,

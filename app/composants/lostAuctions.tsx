@@ -4,7 +4,7 @@ import { BigNumber } from "ethers";
 import DutchWrapper from '@/app/composants/currentDutchWrapper';
 import { DutchsSkeleton } from '@/app/composants/skeletons';
 import { Article  } from "./interfaces/Article";
-import { useMyContext } from '@/app/dashboard/context';
+import { useMyContext } from '@/app/context';
 import { Auction } from "./interfaces/Auction";
 
 interface AuctionProps { id:number|BigNumber }

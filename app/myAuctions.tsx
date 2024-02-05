@@ -1,9 +1,9 @@
 'use client';
 import { CurrentAuctions } from '@/app/composants/currentAuctions';
-import { Auction } from '../composants/interfaces/Auction';
+import { Auction } from './composants/interfaces/Auction';
 import { useEffect, useState } from 'react';
 import { useMyContext } from './context';
-import { OwnAuctions } from '../composants/ownAuctions';
+import { OwnAuctions } from './composants/ownAuctions';
 
 const MyAuctions = () => {
     const { contract, signer } = useMyContext();

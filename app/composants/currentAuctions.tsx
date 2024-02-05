@@ -3,7 +3,7 @@ import { ethers, BigNumber } from "ethers";
 import { useEffect, useState, Suspense } from "react";
 import { DutchsSkeleton } from '@/app/composants/skeletons';
 import DutchWrapper from '@/app/composants/currentDutchWrapper';
-import { useMyContext } from '@/app/dashboard/context';
+import { useMyContext } from '@/app/context';
 import { Auction } from "./interfaces/Auction";
 import { Article  } from "./interfaces/Article";
 

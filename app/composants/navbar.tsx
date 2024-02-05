@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from 'next/image'
-import { useMyContext } from "../dashboard/context";
+import { useMyContext } from "../context";
 
 interface NavBarProps {
   setActiveSection: Function,
