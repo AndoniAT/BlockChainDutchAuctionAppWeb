@@ -4,8 +4,6 @@
 |-----------------|---------|
 |   ALONSO TORT   |  Andoni |
 
-Le TP est à réaliser individuellement.
-
 ## Présentation
 
 Ce TP est le prolongement du premier et consiste à créer une application décentralisée (dApp) permettant de donner vie à votre Smart Contract (SC). Celle-ci doit pouvoir proposer les fonctionnalités suivantes.
@@ -30,11 +28,6 @@ La gestion des enchères est composée des éléments suivants :
 
 Pour interagir avec la blockchain depuis votre application, il existe plusieurs bibliothèques telles que [ethers](https://docs.ethers.org/v5/) ou encore [web3js](https://web3js.readthedocs.io/en/v1.10.0/).
 
-## Restitution
-
-**Un rapport concernant l'utilisation de l'application sera à restituer 3 semaines après le dernier TP.**
-
-Pour ce projet, il est imposé d'utiliser le framework [NextJS](https://nextjs.org/) qui utilise la bibliothèque [React](https://react.dev/).
 
 ## Installation
 
@@ -58,10 +51,10 @@ Ouvrir [http://localhost:3000](http://localhost:3000) avec votre navigateur pour
 
 # = ENCHERE HOLLANDAISE APP =
 
-Attention, pour le bon fonctionnement de ce projet il faut déjà avoir installé Metamask sur notre navigateur, les étapes à suivre son expliquées dans le rapport dans l'autre [projet de la forge](https://www-apps.univ-lehavre.fr/forge/aa204303/dutch-auction.git).
+Attention, pour le bon fonctionnement de ce projet il faut déjà avoir installé Metamask sur notre navigateur, les étapes à suivre son expliquées dans le rapport dans l'autre [projet github](https://github.com/AndoniAT/BlockChainDutchAuctionContrat.git).
 
 ## Ganache
-Pour qu'on puisse utiliser notre contrat, ne pas oublier de lancer ganache avant et deployer notre contract dans notre notre application sur [le projet de la forge](https://www-apps.univ-lehavre.fr/forge/aa204303/dutch-auction.git).
+Pour qu'on puisse utiliser notre contrat, ne pas oublier de lancer ganache avant et deployer notre contract dans notre notre application sur [le projet github](https://github.com/AndoniAT/BlockChainDutchAuctionContrat.git).
 
 Juste pour vérifier le fonctionnement, j'ai rajouté deux enchères qui commenceront dès que le contrat est deployé.
 
